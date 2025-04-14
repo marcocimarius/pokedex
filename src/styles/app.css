@@ -1,0 +1,19 @@
+nav {
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+nav a {
+  color: black;
+  font-weight: bold;
+  text-decoration: none;
+  font-size: 1.1rem;
+  transition: opacity 0.2s ease, border-bottom 0.2s ease;
+}
+
+nav a:hover {
+  opacity: 0.8;
+}

@@ -1,49 +1,45 @@
-name: Deploy
-
+name: Build and Deploy Container
 on:
-  push:
-    branches:
-      - main
+  workflow_run:
+    workflows: ["Run Tests & Lint"]  
+    types:
+      - completed
+
+permissions:
+  contents: read
+  packages: write
 
 jobs:
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
-
-      - name: Setup Node
-        uses: actions/setup-node@v3
-
-      - name: Install dependencies
-        uses: bahmutov/npm-install@v1
-
-      - name: Build project
-        run: npm run build
-
-      - name: Upload production-ready build files
-        uses: actions/upload-artifact@v4
-        with:
-          name: production-files
-          path: ./dist
-
   deploy:
-    name: Deploy
-    needs: build
+    if: ${{ github.event.workflow_run.conclusion == 'success' 
+      && github.event.workflow_run.head_branch == 'main' }}
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
 
     steps:
-      - name: Download artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: production-files
-          path: ./dist
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:${{ github.sha }}
+
+
+
+
+
+
+
+
+            

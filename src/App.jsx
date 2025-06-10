@@ -6,6 +6,7 @@ import './styles/app.css';
 
 function App() {
   return (
+    
     <>
       <nav>
         <Link to="/pokedex">Pokédex</Link> | <Link to="/about">About</Link>
